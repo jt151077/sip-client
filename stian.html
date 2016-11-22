@@ -1,0 +1,29 @@
+<html>
+<head>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+// jQuery cross domain ajax
+$.ajax({
+ type: 'GET',
+ url: 'https://k8stdss9o2.execute-api.eu-west-1.amazonaws.com/beta/?chipId=1607191&sensor=switch',
+ // headers: {
+   //   'MyCustomHeader': 'important information'
+ // },
+ xhrFields: {
+     withCredentials: false
+ },
+ // username: 'myuser',
+ // password: 'mypassword',
+ success: function(data) {
+     console.log('success', data);
+ },
+ error: function() {
+     console.log('failure');
+ }
+});
+
+</script>
+</body>
+</html>
