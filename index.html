@@ -41,9 +41,17 @@
 				instance_id         : null,
 				session_timers      : true,
 				use_preloaded_route : false,
-                turn_servers		: [
-                    { urls:"turn:ec2-54-229-58-204.eu-west-1.compute.amazonaws.com?transport=udp&port=5065", username:"jeremy", credential:"system"}
-                ],
+                pcConfig            :
+				{
+					iceServers          :
+					[
+						{
+                            urls: 'turn:ec2-54-229-58-204.eu-west-1.compute.amazonaws.com:3478',
+                            credential: 'system', // NOT Hash
+                            username: 'jeremy'
+						}
+					]
+				},
 				callstats           :
 				{
 					enabled   : false,
