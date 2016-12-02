@@ -1,0 +1,13 @@
+{
+  "name": "jt151077.github.io",
+  "homepage": "https://github.com/jt151077/jt151077.github.io",
+  "authors": [
+    "Jeremy Toussaint <jt151077@gmail.com>"
+  ],
+  "description": "static SIP client",
+  "main": "index.html",
+  "license": "MIT",
+  "dependencies": {
+    "jssip": "^3.0.0"
+  }
+}
