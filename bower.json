@@ -8,6 +8,6 @@
   "main": "index.html",
   "license": "MIT",
   "dependencies": {
-    "jssip": "^3.0.0"
+
   }
 }
