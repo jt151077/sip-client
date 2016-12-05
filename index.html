@@ -10,6 +10,7 @@
 			RELEASE VERSION: 'release/SIPml-api.js'
 			-->
 		<script src="SIPml-api.js?svn=250" type="text/javascript"> </script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
 
 		<!-- Styles -->
 		<link href="./assets/css/bootstrap.css" rel="stylesheet" />
@@ -129,7 +130,7 @@
 
             var sTransferNumber;
             var oRingTone, oRingbackTone;
-            var oSipStack, oSipSessionRegister, oSipSessionCall, oSipSessionTransferCall;
+            var oSipStack, oSipSessionRegister, oSipSessionCall, oSipSessionTransferCall, oSipSessionMessage;
             var videoRemote, videoLocal, audioRemote;
             var bFullScreen = false;
             var oNotifICall;
@@ -382,7 +383,7 @@
                             video_size: (window.localStorage ? tsk_string_to_object(window.localStorage.getItem('org.doubango.expert.video_size')) : null), // could be redefined a session-level
                             sip_headers: [
                                 { name: 'User-Agent', value: 'IM-client/OMA1.0 sipML5-v1.2016.03.04' },
-                                { name: 'Organization', value: 'Doubango Telecom' }
+                                { name: 'Organization', value: 'Telia' }
                             ]
                         }
                     );
@@ -421,6 +422,7 @@
                         }
                     }
                     btnCall.disabled = true;
+                    btnSendMessage.disabled = true;
                     btnHangUp.disabled = false;
 
                     if (window.localStorage) {
@@ -530,6 +532,21 @@
                     txtCallStatus.innerHTML = '<i>Terminating the call...</i>';
                     oSipSessionCall.hangup({ events_listener: { events: '*', listener: onSipEventSession } });
                 }
+            }
+
+            function sipSendMessage() {
+                console.log('sending message ....');
+
+                if(messageNameInput.value !== '' && messageInput.value !== '') {
+                    messageArea.append(moment().format('YYYY-MM-DD HH:mm:ss')+' (me -> '+messageNameInput.value+'): '+ messageInput.value + '\n');
+                    oSipSessionMessage.send(messageNameInput.value, messageInput.value, 'text/plain;charset=utf-8');
+                    messageInput.value = '';
+                    messageArea.scrollTop = messageArea.scrollHeight;
+                }
+                else {
+                    alert('Please provide a destination name and a text message !!!');
+				}
+
             }
 
             function sipSendDTMF(c) {
@@ -644,6 +661,7 @@
                 btnRegister.disabled = b_connected || b_connecting;
                 btnUnRegister.disabled = !b_connected && !b_connecting;
                 btnCall.disabled = !(b_connected && tsk_utils_have_webrtc() && tsk_utils_have_stream());
+                btnSendMessage.disabled = !(b_connected && tsk_utils_have_webrtc() && tsk_utils_have_stream());
                 btnHangUp.disabled = !oSipSessionCall;
             }
 
@@ -813,6 +831,14 @@
                         break;
                     }
 
+                    case 'i_new_message':
+                    {
+                        e.newSession.accept(); // e.newSession.reject(); to reject the message
+                        messageArea.append(moment().format('YYYY-MM-DD HH:mm:ss') + ' ('+e.newSession.getRemoteFriendlyName()+'): '+ e.getContentString() + '\n');
+                        messageArea.scrollTop = messageArea.scrollHeight;
+                        break;
+                    }
+
                     case 'm_permission_requested':
                     {
                         divGlassPanel.style.visibility = 'visible';
@@ -832,14 +858,28 @@
                 }
             };
 
+            function messageListener(e) {
+                console.log('---> messageListener: session event = ' + e.type);
+			}
+
+			function acceptMessage(e) {
+
+			}
+
             // Callback function for SIP sessions (INVITE, REGISTER, MESSAGE...)
             function onSipEventSession(e /* SIPml.Session.Event */) {
                 tsk_utils_log_info('==session event = ' + e.type);
 
                 switch (e.type) {
                     case 'connecting': case 'connected':
-                {
+                	{
                     var bConnected = (e.type == 'connected');
+
+                        //start listening to messages
+                        oSipSessionMessage = oSipStack.newSession('message', {
+                            events_listener: { events: '*', listener: messageListener } // optional: '*' means all events
+                        });
+
                     if (e.session == oSipSessionRegister) {
                         uiOnConnectionEvent(bConnected, !bConnected);
                         txtRegStatus.innerHTML = "<i>" + e.description + "</i>";
@@ -1158,10 +1198,19 @@
 					</tr>
 					<tr>
 						<td>
+							<label style="height: 100%">Server:</label>
+						</td>
+						<td>
+							<label style="height: 100%">ec2-54-154-202-126.eu-west-1.compute.amazonaws.com</label>
+							<!-- input disabled="true" type="text" style="width: 100%; height: 100%" id="txtRealm" value="ec2-54-154-202-126.eu-west-1.compute.amazonaws.com" placeholder="e.g. doubango.org" / -->
+						</td>
+					</tr>
+					<tr style="visibility: hidden;">
+						<td>
 							<label style="height: 100%">Realm<sup>*</sup>:</label>
 						</td>
 						<td>
-							<input disabled="true" type="text" style="width: 100%; height: 100%" id="txtRealm" value="ec2-54-154-202-126.eu-west-1.compute.amazonaws.com" placeholder="e.g. doubango.org" />
+							<input type="text" style="width: 100%; height: 100%" id="txtRealm" value="ec2-54-154-202-126.eu-west-1.compute.amazonaws.com" placeholder="e.g. doubango.org" />
 						</td>
 					</tr>
 					<tr>
@@ -1171,6 +1220,7 @@
 							<input type="button" class="btn btn-danger" id="btnUnRegister" value="LogOut" disabled onclick='sipUnRegister();' />
 						</td>
 					</tr>
+
 					<!-- tr>
 						<td colspan="3">
 							<p class="small"><sup>*</sup> <i>Mandatory Field</i></p>
@@ -1198,7 +1248,7 @@
 				<table style='width: 100%;'>
 					<tr>
 						<td style="white-space:nowrap;">
-							<input type="text" style="width: 100%; height:100%;" id="txtPhoneNumber" value="" placeholder="Enter phone number to call" />
+							<input type="text" style="width: 100%; height:100%;" id="txtPhoneNumber" value="" placeholder="Enter person to call" />
 						</td>
 					</tr>
 					<tr>
@@ -1237,13 +1287,6 @@
 									<div id="divScreencastLocal" class="previewvideo" style=' border:0px solid #009; z-index: 1000'>
 									</div>
 								</div>
-								<!--div id="div1" style="margin-left: 300px; border:0px solid #009; z-index: 1000">
-									<iframe class="previewvideo" style="border:0px solid #009; z-index: 1000"> </iframe>
-									<div id="div2" class="previewvideo" style='border:0px solid #009; z-index: 1000'>
-									  <input type="button" class="btn" style="" id="Button1" value="Button1" /> &nbsp;
-									  <input type="button" class="btn" style="" id="Button2" value="Button2" /> &nbsp;
-									</div>
-								</div-->
 							</div>
 						</td>
 					</tr>
@@ -1260,29 +1303,48 @@
 					</tr>
 				</table>
 			</div>
+
+			<div class="span7 well" style='display:table-cell; vertical-align:middle'>
+				<label style="width: 100%;" align="center">
+				</label>
+				<h2>
+					Messaging control
+				</h2>
+				<br />
+				<table style='width: 100%;'>
+					<tr>
+						<td style="white-space:nowrap;">
+							<input type="text" style="width: 30%; height:100%;" id="messageNameInput" value="" placeholder="Enter person to txt" />
+							<input type="text" style="width: 68%; height:100%;" id="messageInput" value="" placeholder="Type your message here and press 'send'" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="1" align="right">
+							<div class="btn-toolbar" style="margin: 0; vertical-align:middle">
+								<!--div class="btn-group">
+									<input type="button" id="btnBFCP" style="margin: 0; vertical-align:middle; height: 100%;" class="btn btn-primary" value="BFCP" onclick='sipShareScreen();' disabled />
+								</div-->
+								<div class="btn-group">
+									<input disabled type="button" id="btnSendMessage" style="margin: 0; vertical-align:middle; height: 100%;" class="btn btn-primary" value="Send" onclick='sipSendMessage();' />
+								</div>&nbsp;&nbsp;
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td style="white-space:nowrap;">
+							<textarea style="width: 100%; height: 200px" id="messageArea" value="" ></textarea>
+						</td>
+					</tr>
+				</table>
+			</div>
 		</div>
 
 		<br />
 		<footer>
-
 			<p>
-				&copy; Doubango Telecom 2012-2016 <br />
-				<i>Inspiring the future</i>
+				Client tweaked from &copy; Doubango 2012-2016 <br />
 			</p>
-			<!-- Creates all ATL/COM objects right now
-				Will open confirmation dialogs if not already done
-			-->
-			<!--object id="fakeVideoDisplay" classid="clsid:5C2C407B-09D9-449B-BB83-C39B7802A684" style="visibility:hidden;"> </object-->
-			<!--object id="fakeLooper" classid="clsid:7082C446-54A8-4280-A18D-54143846211A" style="visibility:visible; width:0px; height:0px"> </object-->
-			<!--object id="fakeSessionDescription" classid="clsid:DBA9F8E2-F9FB-47CF-8797-986A69A1CA9C" style="visibility:hidden;"> </object-->
-			<!--object id="fakeNetTransport" classid="clsid:5A7D84EC-382C-4844-AB3A-9825DBE30DAE" style="visibility:hidden;"> </object-->
-			<!--object id="fakePeerConnection" classid="clsid:56D10AD3-8F52-4AA4-854B-41F4D6F9CEA3" style="visibility:hidden;"> </object-->
 			<object id="fakePluginInstance" classid="clsid:69E4A9D1-824C-40DA-9680-C7424A27B6A0" style="visibility:hidden;"> </object>
-
-			<!--
-				NPAPI  browsers: Safari, Opera and Firefox
-			-->
-			<!--embed id="WebRtc4npapi" type="application/w4a" width='1' height='1' style='visibility:hidden;' /-->
 		</footer>
 	</div>
 	<!-- /container -->
