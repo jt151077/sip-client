@@ -246,7 +246,7 @@ function sipRegister() {
                 impu: txtPublicIdentity.value,
                 password: txtPassword.value,
                 display_name: txtDisplayName.value,
-                websocket_proxy_url: 'wss://ec2-54-154-202-126.eu-west-1.compute.amazonaws.com:5062',
+                websocket_proxy_url: 'wss://ec2-54-154-202-126.eu-west-1.compute.amazonaws.com:443',
                 //websocket_proxy_url: (window.localStorage ? window.localStorage.getItem('org.doubango.expert.websocket_server_url') : null),
                 outbound_proxy_url: 'udp://ec2-54-154-202-126.eu-west-1.compute.amazonaws.com:5060',
                 //outbound_proxy_url: (window.localStorage ? window.localStorage.getItem('org.doubango.expert.sip_outboundproxy_url') : null),
