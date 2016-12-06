@@ -298,7 +298,6 @@ function sipCall(s_type) {
             }
         }
         btnCall.disabled = true;
-        btnSendMessage.disabled = true;
         btnHangUp.disabled = false;
 
         if (window.localStorage) {
@@ -678,6 +677,7 @@ function onSipEventStack(e /*SIPml.Stack.Event*/) {
         divCallOptions.style.opacity = 0;
 
         txtCallStatus.innerHTML = '';
+        btnSendMessage.disabled = true;
         txtRegStatus.innerHTML = bFailure ? "<i>Disconnected: <b>" + e.description + "</b></i>" : "<i>Disconnected</i>";
         break;
     }
@@ -750,6 +750,8 @@ function onSipEventSession(e /* SIPml.Session.Event */) {
         case 'connecting': case 'connected':
     {
         var bConnected = (e.type == 'connected');
+
+        btnSendMessage.disabled = false;
 
         //start listening to messages
         oSipSessionMessage = oSipStack.newSession('message', {
