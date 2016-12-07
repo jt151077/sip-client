@@ -1,9 +1,3 @@
-
-// to avoid caching
-//if (window.location.href.indexOf("svn=") == -1) {
-//    window.location.href += (window.location.href.indexOf("?") == -1 ? "svn=236" : "&svn=229");
-//}
-
 var sTransferNumber;
 var oRingTone, oRingbackTone;
 var oSipStack, oSipSessionRegister, oSipSessionCall, oSipSessionTransferCall, oSipSessionMessage;
