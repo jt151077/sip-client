@@ -243,7 +243,7 @@ function sipRegister() {
                 websocket_proxy_url: 'wss://ims.telia.io:443',
                 //outbound_proxy_url: 'udp://ims.telia.io:5060',
                 ice_servers: [{ url:'turn:jeremy@ec2-54-229-58-204.eu-west-1.compute.amazonaws.com', credential:'system'}],
-                enable_rtcweb_breaker: true,
+                enable_rtcweb_breaker: false,
                 events_listener: { events: '*', listener: onSipEventStack },
                 enable_early_ims: true,
                 enable_media_stream_cache: true,
