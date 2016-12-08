@@ -235,24 +235,24 @@ function sipRegister() {
 
         // create SIP stack
         oSipStack = new SIPml.Stack({
-                realm: 'ims.telia.io',
+                realm: 'ims.comms.telia.io',
                 impi: txtPrivateIdentity.value,
                 impu: txtPublicIdentity.value,
                 password: txtPassword.value,
                 display_name: txtDisplayName.value,
-                websocket_proxy_url: 'wss://ims.telia.io:443',
-                //outbound_proxy_url: 'udp://ims.telia.io:5060',
-                ice_servers: [{ url:'turn:jeremy@ec2-54-229-58-204.eu-west-1.compute.amazonaws.com', credential:'system'}],
+                websocket_proxy_url: 'wss://ims.comms.telia.io:443',
+                //outbound_proxy_url: 'udp://ims.comms.telia.io:5060',
+                //ice_servers: [{ url:'turn:jeremy@ec2-54-229-58-204.eu-west-1.compute.amazonaws.com', credential:'system'}],
                 enable_rtcweb_breaker: false,
                 events_listener: { events: '*', listener: onSipEventStack },
                 enable_early_ims: true,
                 enable_media_stream_cache: true,
                 bandwidth: { audio:64, video:512 }, // could be redefined a session-level
-                video_size: { minWidth:640, minHeight:480, maxWidth:1920, maxHeight:1080 }, // could be redefined a session-level
-                sip_headers: [
+                video_size: { minWidth:640, minHeight:480, maxWidth:1920, maxHeight:1080 }
+                /*sip_headers: [
                     { name: 'User-Agent', value: 'IM-client/OMA1.0 sipML5-v1.2016.03.04' },
                     { name: 'Organization', value: 'Telia' }
-                ]
+                ]*/
             }
         );
         if (oSipStack.start() != 0) {
