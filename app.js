@@ -242,7 +242,7 @@ function sipRegister() {
                 display_name: txtDisplayName.value,
                 websocket_proxy_url: 'wss://ims.comms.telia.io:443',
                 //outbound_proxy_url: 'udp://ims.comms.telia.io:5060',
-                ice_servers: [{ url:'turn:websip@turn.comms.telia.io', credential:'websip'}],
+                ice_servers: [{ url: 'stun:stun.l.google.com:19302'}, { url:'turn:websip@turn.comms.telia.io', credential:'websip'}],
                 enable_rtcweb_breaker: false,
                 events_listener: { events: '*', listener: onSipEventStack },
                 enable_early_ims: true,
