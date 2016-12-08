@@ -235,20 +235,20 @@ function sipRegister() {
 
         // create SIP stack
         oSipStack = new SIPml.Stack({
-                realm: txtRealm.value,
+                realm: 'ims.telia.io',
                 impi: txtPrivateIdentity.value,
                 impu: txtPublicIdentity.value,
                 password: txtPassword.value,
                 display_name: txtDisplayName.value,
                 websocket_proxy_url: 'wss://ims.telia.io:443',
-                outbound_proxy_url: 'udp://ims.telia.io:5060',
-                ice_servers: (window.localStorage ? window.localStorage.getItem('org.doubango.expert.ice_servers') : null),
-                enable_rtcweb_breaker: (window.localStorage ? window.localStorage.getItem('org.doubango.expert.enable_rtcweb_breaker') == "true" : false),
+                //outbound_proxy_url: 'udp://ims.telia.io:5060',
+                ice_servers: [{ url:'turn:jeremy@ec2-54-229-58-204.eu-west-1.compute.amazonaws.com', credential:'system'}],
+                enable_rtcweb_breaker: true,
                 events_listener: { events: '*', listener: onSipEventStack },
-                enable_early_ims: (window.localStorage ? window.localStorage.getItem('org.doubango.expert.disable_early_ims') != "true" : true), // Must be true unless you're using a real IMS network
-                enable_media_stream_cache: (window.localStorage ? window.localStorage.getItem('org.doubango.expert.enable_media_caching') == "true" : false),
-                bandwidth: (window.localStorage ? tsk_string_to_object(window.localStorage.getItem('org.doubango.expert.bandwidth')) : null), // could be redefined a session-level
-                video_size: (window.localStorage ? tsk_string_to_object(window.localStorage.getItem('org.doubango.expert.video_size')) : null), // could be redefined a session-level
+                enable_early_ims: true,
+                enable_media_stream_cache: true,
+                bandwidth: { audio:64, video:512 }, // could be redefined a session-level
+                video_size: { minWidth:640, minHeight:480, maxWidth:1920, maxHeight:1080 }, // could be redefined a session-level
                 sip_headers: [
                     { name: 'User-Agent', value: 'IM-client/OMA1.0 sipML5-v1.2016.03.04' },
                     { name: 'Organization', value: 'Telia' }
